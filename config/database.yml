@@ -9,7 +9,7 @@ production:
   database: test
   host: localhost
   username: root
-  password: ""
+  password: "1234"
   encoding: utf8
 
 development:

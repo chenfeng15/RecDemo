@@ -1,15 +1,5 @@
 class FilePathController < ApplicationController
 
-  require "mysql"
-  dbh = Mysql.real_connect("localhost","root","1234","test")
-  if dbh
-    puts "数据库已连接"
-  else
-    puts "连接失败"
-  end
-  dbh.query('set NAMES utf8mb4')
-  dbh.query('set character set utf8mb4')
-  dbh.query('set character_set_connection=utf8mb4;')
 
 #判断文件类型(后缀)的函数
   def filetype(f1,f2)
@@ -30,7 +20,7 @@ class FilePathController < ApplicationController
     new_file_list.each do |i|
       puts i
     end
-    result=$db1.query("select pr_id from test_item")
+    result=result.find("select pr_id from test_item")
     #存放pr_id列表
     pull_list=[]
     result.each do |i|
@@ -53,7 +43,7 @@ class FilePathController < ApplicationController
     pull_list.each do |i|
       score = 0
       old_file_list = []
-      result=$db1.query("select * from test_item where pr_id=#{i}")
+      result=result.find("select * from test_item where pr_id=#{i}")
       result.each do |j|
         old_file_list << j['pr_route']
       end
@@ -65,7 +55,7 @@ class FilePathController < ApplicationController
       end
       if score != 0
         score_list << score
-        result=$db1.query("select distinct(user_login) from test_item where pr_id=#{i}")
+        result=result.find("select distinct(user_login) from test_item where pr_id=#{i}")
         result.each do |i_id|
           user_login1 = i_id['user_login']
           reviewer[user_login1] = 0.0 if !reviewer[user_login1]
@@ -81,7 +71,7 @@ class FilePathController < ApplicationController
 
 #新输入的pr
   def input_file_name(pr_id,test_time)
-    result=$db1.query("select pr_id,creat_at from new_item")
+    result=result.find("select pr_id,creat_at from new_item")
     pull_list=[]
     result.each do |i|
       #这个判断可能有点多余，但不知道怎么删
@@ -100,7 +90,7 @@ class FilePathController < ApplicationController
     pull_list.each do |i|
       file_list=[]
       user_list=[]
-      result=$db1.query("select * from new_item where pr_id=#{i}")
+      result=result.find("select * from new_item where pr_id=#{i}")
       result.each do |j|
         file_list << j['pr_route']
       end
@@ -110,20 +100,10 @@ class FilePathController < ApplicationController
       predict_result.each do |j|
         predict_user_list << j[0]
       end
-      result=$db1.query("select * from new_item where pr_id=#{i}")
+      result=result.find("select * from new_item where pr_id=#{i}")
       result.each do |j|
         user_list << j['user_login']
       end
-
-      #将所得比分结果存入数据库
-      typeSimilarity=$db1.prepare("insert ignore into test_demo(user_login,pr_id,filetype) values(?,?,?)")
-      puts predict_result
-
-      typeSimilarity.execute(predict_result[0][0],i.to_s,predict_result[0][1].to_s)
-      typeSimilarity.execute(predict_result[1][0],i.to_s,predict_result[1][1].to_s)
-      typeSimilarity.execute(predict_result[2][0],i.to_s,predict_result[2][1].to_s)
-      typeSimilarity.execute(predict_result[3][0],i.to_s,predict_result[3][1].to_s)
-      typeSimilarity.execute(predict_result[4][0],i.to_s,predict_result[4][1].to_s)
     end
   end
 #此处可更换为其他参数输入
