@@ -4,4 +4,11 @@ Rails.application.routes.draw do
   resources :file_path do
 
   end
+  resources :file_type do
+  
+  end
+  resources :synthesis do
+  
+  end
+  
 end
